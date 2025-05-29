@@ -1,0 +1,24 @@
+2025-05-29 19:52:19,329 - src.utils.logger - INFO - Logging session started - Log file: logs/plex_renamer_20250529_195219.log
+2025-05-29 19:52:19,330 - src.core.file_parser - INFO - Scanning directory: /tmp/plex_test_5gvwtn95/movies
+2025-05-29 19:52:19,332 - src.core.file_parser - INFO - Found 4 media files
+2025-05-29 19:52:19,332 - src.core.file_parser - INFO - Scanning directory: /tmp/plex_test_5gvwtn95/tv_shows
+2025-05-29 19:52:19,333 - src.core.file_parser - INFO - Found 4 media files
+2025-05-29 19:52:19,335 - src.utils.config - INFO - Creating default configuration
+2025-05-29 19:52:19,335 - src.utils.config - INFO - Configuration saved to config.ini
+2025-05-29 19:52:19,336 - src.core.file_parser - INFO - Scanning directory: /tmp/plex_test_ievttxnw/movies
+2025-05-29 19:52:19,336 - src.core.file_parser - INFO - Found 4 media files
+2025-05-29 19:52:19,336 - src.core.file_parser - INFO - Scanning directory: /tmp/plex_test_ievttxnw/tv_shows
+2025-05-29 19:52:19,336 - src.core.file_parser - INFO - Found 4 media files
+2025-05-29 19:52:19,337 - src.core.renamer - WARNING - TMDB client not available
+2025-05-29 19:52:19,337 - src.core.renamer - WARNING - TMDB client not available
+2025-05-29 19:52:19,337 - src.core.renamer - WARNING - TMDB client not available
+2025-05-29 19:52:19,337 - src.core.renamer - WARNING - TMDB client not available
+2025-05-29 19:52:19,338 - src.core.renamer - INFO - DRY RUN: Would rename /tmp/plex_test_ievttxnw/movies/The.Avengers.2012.1080p.BluRay.x264.mkv -> /tmp/plex_test_ievttxnw/movies/The Avengers x264 (2012)/The Avengers x264 (2012).mkv
+2025-05-29 19:52:19,338 - src.core.renamer - INFO - DRY RUN: Would rename /tmp/plex_test_ievttxnw/movies/Pulp Fiction 1994.mkv -> /tmp/plex_test_ievttxnw/movies/Pulp Fiction (1994)/Pulp Fiction (1994).mkv
+2025-05-29 19:52:19,338 - src.core.renamer - INFO - DRY RUN: Would rename /tmp/plex_test_ievttxnw/movies/Inception 2010 720p BDRip.mp4 -> /tmp/plex_test_ievttxnw/movies/Inception (2010)/Inception (2010).mp4
+2025-05-29 19:52:19,338 - src.core.renamer - INFO - DRY RUN: Would rename /tmp/plex_test_ievttxnw/movies/The Matrix (1999) [1080p].avi -> /tmp/plex_test_ievttxnw/movies/The Matrix (1999)/The Matrix (1999).avi
+2025-05-29 19:52:19,338 - src.core.renamer - INFO - DRY RUN: Would rename /tmp/plex_test_ievttxnw/tv_shows/Breaking.Bad.S01E01.720p.HDTV.x264.mkv -> /tmp/plex_test_ievttxnw/tv_shows/Breaking Bad x264/Season 01/Breaking Bad x264 - s01e01.mkv
+2025-05-29 19:52:19,338 - src.core.renamer - INFO - DRY RUN: Would rename /tmp/plex_test_ievttxnw/tv_shows/The Office US S03E12 Traveling Salesmen 1080p.avi -> /tmp/plex_test_ievttxnw/tv_shows/The Office US Traveling Salesmen/Season 03/The Office US Traveling Salesmen - s03e12.avi
+2025-05-29 19:52:19,338 - src.core.renamer - INFO - DRY RUN: Would rename /tmp/plex_test_ievttxnw/tv_shows/Game of Thrones - s02e05 - The Ghost of Harrenhal.mp4 -> /tmp/plex_test_ievttxnw/tv_shows/Game of Thrones The Ghost of Harrenhal/Season 02/Game of Thrones The Ghost of Harrenhal - s02e05.mp4
+2025-05-29 19:52:19,338 - src.core.renamer - INFO - DRY RUN: Would rename /tmp/plex_test_ievttxnw/tv_shows/Stranger Things 2016 1x08 Chapter Eight The Upside Down.mkv -> /tmp/plex_test_ievttxnw/tv_shows/Stranger Things Chapter Eight The Upside Down/Season 01/Stranger Things Chapter Eight The Upside Down - s01e08.mkv
+2025-05-29 19:52:19,338 - src.core.renamer - INFO - Operation results: {'success': 8, 'failed': 0, 'skipped': 0}
