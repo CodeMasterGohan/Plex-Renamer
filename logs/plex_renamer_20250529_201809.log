@@ -1,0 +1,3 @@
+2025-05-29 20:18:09,808 - src.utils.logger - INFO - Logging session started - Log file: logs\plex_renamer_20250529_201809.log
+2025-05-29 20:18:09,809 - __main__ - INFO - Starting Plex Media Renamer application
+2025-05-29 20:18:09,874 - src.utils.config - INFO - Configuration loaded from config.ini

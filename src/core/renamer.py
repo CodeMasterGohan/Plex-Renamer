@@ -418,4 +418,23 @@ class MediaRenamer:
                 results["failed"] += 1
         
         self.logger.info(f"Operation results: {results}")
-        return results 
+        return results
+
+    def apply_rename_operation(self, operation: RenameOperation) -> Tuple[bool, Optional[str]]:
+        """
+        Apply a single rename operation (for web API compatibility).
+        
+        Args:
+            operation: RenameOperation to execute
+            
+        Returns:
+            Tuple of (success: bool, error_message: Optional[str])
+        """
+        try:
+            success = self.execute_operation(operation, dry_run=False)
+            return success, operation.error_message
+        except Exception as e:
+            error_msg = str(e)
+            operation.error_message = error_msg
+            operation.success = False
+            return False, error_msg 

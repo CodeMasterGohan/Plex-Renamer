@@ -1,0 +1,6 @@
+2025-05-29 20:19:57,591 - src.utils.logger - INFO - Logging session started - Log file: logs\plex_renamer_20250529_201957.log
+2025-05-29 20:19:57,591 - __main__ - INFO - Starting Plex Media Renamer application
+2025-05-29 20:19:57,659 - src.utils.config - INFO - Configuration loaded from config.ini
+2025-05-29 20:20:04,233 - src.utils.config - INFO - Configuration saved to config.ini
+2025-05-29 20:20:10,183 - src.core.file_parser - INFO - Scanning directory: Z:\Plex\movies
+2025-05-29 20:20:10,836 - src.core.file_parser - INFO - Found 413 media files
