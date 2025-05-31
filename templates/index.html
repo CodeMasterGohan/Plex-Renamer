@@ -1,377 +1,335 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Plex Media Renamer</title>
-    
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
     <!-- Custom CSS -->
     <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
 </head>
+
 <body>
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container">
-            <a class="navbar-brand" href="#">
-                <i class="bi bi-film me-2"></i>
-                Plex Media Renamer
-            </a>
-            <div class="navbar-nav ms-auto">
-                <button class="btn btn-outline-light" data-bs-toggle="modal" data-bs-target="#settingsModal">
-                    <i class="bi bi-gear"></i> Settings
-                </button>
-                <button class="btn btn-outline-light ms-2" id="themeToggle">
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <i class="bi bi-film"></i>
+                <span>Plex Media Renamer</span>
+            </div>
+            <div class="nav-actions">
+                <button class="btn btn-ghost" id="themeToggle" title="Toggle theme">
                     <i class="bi bi-moon-fill"></i>
+                </button>
+                <button class="btn btn-ghost" id="settingsButton" title="Settings">
+                    <i class="bi bi-gear"></i>
                 </button>
             </div>
         </div>
     </nav>
 
-    <div class="container mt-4">
-        <!-- Status Alert -->
-        <div id="alertContainer"></div>
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="hero-content">
+                <h1>Organize Your Media Library</h1>
+                <p>Automatically rename and organize your Plex media files with intelligent metadata detection and
+                    folder discovery.</p>
+            </div>
+        </section>
 
-        <!-- Main Content -->
-        <div class="row">
-            <!-- Left Panel - Controls -->
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">
-                            <i class="bi bi-folder2-open me-2"></i>
-                            Media Scanner
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <!-- Media Type Selection -->
-                        <div class="mb-3">
-                            <label class="form-label">Media Type</label>
-                            <div class="btn-group d-grid" role="group">
-                                <input type="radio" class="btn-check" name="mediaType" id="moviesRadio" value="movies" checked>
-                                <label class="btn btn-outline-primary" for="moviesRadio">
-                                    <i class="bi bi-camera-reels me-1"></i> Movies
-                                </label>
-                                
-                                <input type="radio" class="btn-check" name="mediaType" id="tvShowsRadio" value="tv_shows">
-                                <label class="btn btn-outline-primary" for="tvShowsRadio">
-                                    <i class="bi bi-tv me-1"></i> TV Shows
-                                </label>
-                            </div>
-                        </div>
+        <!-- Alert Container -->
+        <div id="alertContainer" class="alert-container"></div>
 
-                        <!-- Path Display -->
-                        <div class="mb-3">
-                            <label class="form-label">Scan Path</label>
-                            <div class="input-group">
-                                <input type="text" class="form-control" id="scanPath" readonly>
-                                <button class="btn btn-outline-secondary" type="button" id="browsePath">
-                                    <i class="bi bi-folder"></i>
-                                </button>
-                            </div>
-                            <div class="form-text">Current media directory to scan</div>
-                        </div>
+        <!-- Discovery Section -->
+        <section class="section">
+            <div class="section-header">
+                <h2>
+                    <i class="bi bi-search"></i>
+                    Discover Media Folders
+                </h2>
+                <p>Scan your Plex directory to automatically detect and analyze media folders</p>
+            </div>
 
-                        <!-- Control Buttons -->
-                        <div class="d-grid gap-2">
-                            <button class="btn btn-primary" id="scanButton">
-                                <i class="bi bi-search me-2"></i>
-                                Scan Files
-                            </button>
-                            
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="dryRunMode" checked>
-                                <label class="form-check-label" for="dryRunMode">
-                                    <i class="bi bi-eye me-1"></i>
-                                    Dry Run Mode
-                                </label>
-                            </div>
-                            
-                            <button class="btn btn-success" id="applyChangesButton" disabled>
-                                <i class="bi bi-play-fill me-2"></i>
-                                Apply Changes
-                            </button>
-                        </div>
-
-                        <!-- Progress -->
-                        <div id="progressContainer" class="mt-3" style="display: none;">
-                            <div class="progress">
-                                <div class="progress-bar progress-bar-striped progress-bar-animated" 
-                                     id="progressBar" role="progressbar" style="width: 0%"></div>
-                            </div>
-                            <small class="text-muted" id="progressText">Ready</small>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Statistics Card -->
-                <div class="card mt-3">
-                    <div class="card-header">
-                        <h6 class="card-title mb-0">
-                            <i class="bi bi-bar-chart me-2"></i>
-                            Statistics
-                        </h6>
-                    </div>
-                    <div class="card-body">
-                        <div class="row text-center">
-                            <div class="col-6">
-                                <div class="stat-value" id="filesFound">0</div>
-                                <div class="stat-label">Files Found</div>
-                            </div>
-                            <div class="col-6">
-                                <div class="stat-value" id="operationsReady">0</div>
-                                <div class="stat-label">Operations Ready</div>
-                            </div>
-                        </div>
-                    </div>
+            <div class="discovery-controls">
+                <div class="input-group">
+                    <input type="text" id="plexPath" value="/media/plex" placeholder="Enter Plex directory path"
+                        class="form-input">
+                    <button class="btn btn-primary" id="discoverButton">
+                        <i class="bi bi-search"></i>
+                        <span>Discover Folders</span>
+                    </button>
                 </div>
             </div>
 
-            <!-- Right Panel - Results -->
-            <div class="col-md-8">
-                <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="card-title mb-0">
-                            <i class="bi bi-list-ul me-2"></i>
-                            Scan Results
-                        </h5>
-                        <div class="btn-group btn-group-sm">
-                            <button class="btn btn-outline-secondary" id="selectAllButton">
-                                <i class="bi bi-check-all"></i> Select All
-                            </button>
-                            <button class="btn btn-outline-secondary" id="selectNoneButton">
-                                <i class="bi bi-square"></i> Select None
-                            </button>
-                            <button class="btn btn-outline-info" id="previewButton" disabled>
-                                <i class="bi bi-eye"></i> Preview
-                            </button>
-                        </div>
-                    </div>
-                    <div class="card-body p-0">
-                        <div class="table-responsive">
-                            <table class="table table-hover mb-0" id="resultsTable">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th style="width: 50px;">
-                                            <input type="checkbox" class="form-check-input" id="selectAllCheckbox">
-                                        </th>
-                                        <th>Original Filename</th>
-                                        <th>New Filename</th>
-                                        <th style="width: 100px;">Status</th>
-                                        <th style="width: 80px;">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="resultsTableBody">
-                                    <tr>
-                                        <td colspan="5" class="text-center text-muted py-5">
-                                            <i class="bi bi-folder2-open display-4 d-block mb-2"></i>
-                                            No files scanned yet. Click "Scan Files" to begin.
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
+            <!-- Media Folders Grid -->
+            <div id="mediaFoldersGrid" class="media-folders-grid" style="display: none;">
+                <!-- Folders will be populated here -->
+            </div>
+        </section>
+
+        <!-- Scanner Section -->
+        <section class="section">
+            <div class="section-header">
+                <h2>
+                    <i class="bi bi-folder2-open"></i>
+                    Media Scanner
+                </h2>
+                <p>Scan and rename your media files with intelligent metadata matching</p>
+            </div>
+
+            <div class="scanner-controls">
+                <div class="control-group">
+                    <label class="form-label">Media Type</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="mediaType" value="movies" checked>
+                            <span class="radio-custom"></span>
+                            <i class="bi bi-camera-reels"></i>
+                            <span>Movies</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="mediaType" value="tv_shows">
+                            <span class="radio-custom"></span>
+                            <i class="bi bi-tv"></i>
+                            <span>TV Shows</span>
+                        </label>
                     </div>
                 </div>
+
+                <div class="control-group">
+                    <label class="form-label">Scan Options</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-option">
+                            <input type="checkbox" id="scanAllFolders">
+                            <span class="checkbox-custom"></span>
+                            <span>Scan all discovered folders</span>
+                        </label>
+                        <label class="checkbox-option">
+                            <input type="checkbox" id="dryRunMode" checked>
+                            <span class="checkbox-custom"></span>
+                            <span>Dry run mode (preview only)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="control-group" id="pathGroup">
+                    <label class="form-label">Custom Path</label>
+                    <div class="input-group">
+                        <input type="text" id="scanPath" placeholder="Enter custom scan path" class="form-input">
+                        <button class="btn btn-secondary" id="browsePath" title="Browse for folder">
+                            <i class="bi bi-folder"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-primary btn-large" id="scanButton">
+                        <i class="bi bi-search"></i>
+                        <span>Scan Files</span>
+                    </button>
+                    <button class="btn btn-success btn-large" id="applyChangesButton" disabled>
+                        <i class="bi bi-play-fill"></i>
+                        <span>Apply Changes</span>
+                    </button>
+                </div>
             </div>
-        </div>
-    </div>
+
+            <!-- Progress -->
+            <div id="progressContainer" class="progress-container" style="display: none;">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressBar"></div>
+                </div>
+                <div class="progress-text" id="progressText">Ready</div>
+            </div>
+
+            <!-- Statistics -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="filesFound">0</div>
+                    <div class="stat-label">Files Found</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="operationsReady">0</div>
+                    <div class="stat-label">Operations Ready</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="metadataIssues">0</div>
+                    <div class="stat-label">Metadata Issues</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Results Section -->
+        <section class="section">
+            <div class="section-header">
+                <h2>
+                    <i class="bi bi-list-ul"></i>
+                    Scan Results
+                </h2>
+                <div class="section-actions">
+                    <button class="btn btn-ghost" id="selectAllButton">
+                        <i class="bi bi-check-all"></i>
+                        <span>Select All</span>
+                    </button>
+                    <button class="btn btn-ghost" id="selectNoneButton">
+                        <i class="bi bi-square"></i>
+                        <span>Select None</span>
+                    </button>
+                    <button class="btn btn-ghost" id="showMetadataIssues">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        <span>Show Issues</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Results Table -->
+            <div class="results-container">
+                <div class="table-container">
+                    <table class="results-table" id="resultsTable">
+                        <thead>
+                            <tr>
+                                <th class="checkbox-column">
+                                    <label class="checkbox-option">
+                                        <input type="checkbox" id="selectAllCheckbox">
+                                        <span class="checkbox-custom"></span>
+                                    </label>
+                                </th>
+                                <th>Current Name</th>
+                                <th>New Name</th>
+                                <th>Type</th>
+                                <th>Metadata Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resultsTableBody">
+                            <tr class="empty-state">
+                                <td colspan="6">
+                                    <div class="empty-content">
+                                        <i class="bi bi-inbox"></i>
+                                        <h3>No files scanned yet</h3>
+                                        <p>Start by discovering media folders or scanning a specific directory</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
 
     <!-- Settings Modal -->
-    <div class="modal fade" id="settingsModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">
-                        <i class="bi bi-gear me-2"></i>
-                        Configuration Settings
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    <div class="modal" id="settingsModal">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>
+                    <i class="bi bi-gear"></i>
+                    Settings
+                </h3>
+                <button class="btn btn-ghost" id="closeSettings">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="settings-section">
+                    <h4>API Configuration</h4>
+                    <div class="form-group">
+                        <label class="form-label">TMDB API Key</label>
+                        <input type="password" id="tmdbApiKey" class="form-input" placeholder="Enter TMDB API key">
+                        <div class="form-help">Required for movie metadata. Get your key from <a
+                                href="https://www.themoviedb.org/settings/api" target="_blank">TMDB</a></div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">TVDB API Key</label>
+                        <input type="password" id="tvdbApiKey" class="form-input" placeholder="Enter TVDB API key">
+                        <div class="form-help">Required for TV show metadata. Get your key from <a
+                                href="https://thetvdb.com/api-information" target="_blank">TVDB</a></div>
+                    </div>
                 </div>
-                <div class="modal-body">
-                    <form id="settingsForm">
-                        <!-- API Settings -->
-                        <div class="card mb-3">
-                            <div class="card-header">
-                                <h6 class="mb-0">API Configuration</h6>
-                            </div>
-                            <div class="card-body">
-                                <div class="mb-3">
-                                    <label for="tmdbApiKey" class="form-label">TMDB API Key</label>
-                                    <input type="password" class="form-control" id="tmdbApiKey" 
-                                           placeholder="Enter TMDB API key">
-                                    <div class="form-text">
-                                        Get your key from <a href="https://www.themoviedb.org/settings/api" target="_blank">TMDB</a>
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="tvdbApiKey" class="form-label">TVDB API Key</label>
-                                    <input type="password" class="form-control" id="tvdbApiKey" 
-                                           placeholder="Enter TVDB API key">
-                                    <div class="form-text">
-                                        Get your key from <a href="https://thetvdb.com/dashboard/account/apikey" target="_blank">TVDB</a>
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="preferredLanguage" class="form-label">Preferred Language</label>
-                                    <select class="form-select" id="preferredLanguage">
-                                        <option value="en-US">English (US)</option>
-                                        <option value="en-GB">English (UK)</option>
-                                        <option value="es-ES">Spanish</option>
-                                        <option value="fr-FR">French</option>
-                                        <option value="de-DE">German</option>
-                                        <option value="it-IT">Italian</option>
-                                        <option value="ja-JP">Japanese</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
 
-                        <!-- Path Settings -->
-                        <div class="card mb-3">
-                            <div class="card-header">
-                                <h6 class="mb-0">Media Paths</h6>
-                            </div>
-                            <div class="card-body">
-                                <div class="mb-3">
-                                    <label for="baseMediaPath" class="form-label">Base Media Path</label>
-                                    <input type="text" class="form-control" id="baseMediaPath" 
-                                           placeholder="/media/plex">
-                                </div>
-                                <div class="mb-3">
-                                    <label for="moviesSubfolder" class="form-label">Movies Subfolder</label>
-                                    <input type="text" class="form-control" id="moviesSubfolder" 
-                                           placeholder="movies">
-                                </div>
-                                <div class="mb-3">
-                                    <label for="tvShowsSubfolder" class="form-label">TV Shows Subfolder</label>
-                                    <input type="text" class="form-control" id="tvShowsSubfolder" 
-                                           placeholder="tv_shows">
-                                </div>
-                            </div>
-                        </div>
+                <div class="settings-section">
+                    <h4>Paths</h4>
+                    <div class="form-group">
+                        <label class="form-label">Base Media Path</label>
+                        <input type="text" id="baseMediaPath" class="form-input" placeholder="/media/plex">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Movies Subfolder</label>
+                        <input type="text" id="moviesSubfolder" class="form-input" placeholder="Movies">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">TV Shows Subfolder</label>
+                        <input type="text" id="tvShowsSubfolder" class="form-input" placeholder="TV Shows">
+                    </div>
+                </div>
 
-                        <!-- Behavior Settings -->
-                        <div class="card">
-                            <div class="card-header">
-                                <h6 class="mb-0">Behavior Settings</h6>
-                            </div>
-                            <div class="card-body">
-                                <div class="form-check mb-3">
-                                    <input class="form-check-input" type="checkbox" id="createMovieFolders">
-                                    <label class="form-check-label" for="createMovieFolders">
-                                        Create individual movie folders
-                                    </label>
-                                </div>
-                                <div class="form-check mb-3">
-                                    <input class="form-check-input" type="checkbox" id="includeEpisodeTitle">
-                                    <label class="form-check-label" for="includeEpisodeTitle">
-                                        Include episode titles in filenames
-                                    </label>
-                                </div>
-                                <div class="form-check mb-3">
-                                    <input class="form-check-input" type="checkbox" id="includeSeriesId">
-                                    <label class="form-check-label" for="includeSeriesId">
-                                        Include series ID in folder names
-                                    </label>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="preferredIdSource" class="form-label">Preferred ID Source</label>
-                                    <select class="form-select" id="preferredIdSource">
-                                        <option value="tvdb">TVDB</option>
-                                        <option value="tmdb">TMDB</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
+                <div class="settings-section">
+                    <h4>Naming Options</h4>
+                    <div class="checkbox-group">
+                        <label class="checkbox-option">
+                            <input type="checkbox" id="createMovieFolders">
+                            <span class="checkbox-custom"></span>
+                            <span>Create individual movie folders</span>
+                        </label>
+                        <label class="checkbox-option">
+                            <input type="checkbox" id="includeEpisodeTitle">
+                            <span class="checkbox-custom"></span>
+                            <span>Include episode titles in TV show filenames</span>
+                        </label>
+                        <label class="checkbox-option">
+                            <input type="checkbox" id="includeSeriesId">
+                            <span class="checkbox-custom"></span>
+                            <span>Include series ID in TV show folder names</span>
+                        </label>
+                    </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" id="saveSettingsButton">
-                        <i class="bi bi-check-lg me-2"></i>
-                        Save Settings
-                    </button>
-                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelSettings">Cancel</button>
+                <button class="btn btn-primary" id="saveSettings">Save Settings</button>
             </div>
         </div>
     </div>
 
-    <!-- Preview Modal -->
-    <div class="modal fade" id="previewModal" tabindex="-1">
-        <div class="modal-dialog modal-xl">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">
-                        <i class="bi bi-eye me-2"></i>
-                        Preview Changes
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    <!-- Metadata Issues Modal -->
+    <div class="modal" id="metadataModal">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>
+                    <i class="bi bi-exclamation-triangle"></i>
+                    Metadata Issues
+                </h3>
+                <button class="btn btn-ghost" id="closeMetadata">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>The following files have metadata issues that may affect renaming:</p>
+                <div class="issues-list" id="issuesList">
+                    <!-- Issues will be populated here -->
                 </div>
-                <div class="modal-body">
-                    <div id="previewContent">
-                        <!-- Preview content will be loaded here -->
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" id="closeMetadataButton">Close</button>
             </div>
         </div>
     </div>
 
-    <!-- Directory Browser Modal -->
-    <div class="modal fade" id="browserModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">
-                        <i class="bi bi-folder2-open me-2"></i>
-                        Browse Directory
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="bi bi-folder"></i></span>
-                            <input type="text" class="form-control" id="currentPath" readonly>
-                            <button class="btn btn-outline-secondary" type="button" id="parentDirButton">
-                                <i class="bi bi-arrow-up"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="table-responsive" style="max-height: 400px;">
-                        <table class="table table-hover">
-                            <thead class="table-light sticky-top">
-                                <tr>
-                                    <th>Name</th>
-                                    <th style="width: 100px;">Type</th>
-                                    <th style="width: 100px;">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody id="browserTableBody">
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" id="selectPathButton" disabled>
-                        Select Path
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Scripts -->
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Custom JS -->
+    <!-- JavaScript -->
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <script>
+        // Initialize the application
+        const app = new PlexMediaRenamer();
+    </script>
 </body>
-</html> 
+
+</html>

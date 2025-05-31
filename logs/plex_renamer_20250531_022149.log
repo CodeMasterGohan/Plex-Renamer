@@ -1,0 +1,4 @@
+2025-05-31 02:21:49,815 - src.utils.logger - INFO - Logging session started - Log file: logs/plex_renamer_20250531_022149.log
+2025-05-31 02:21:49,815 - src.utils.logger - INFO - Logging session started - Log file: logs/plex_renamer_20250531_022149.log
+2025-05-31 02:22:00,894 - src.core.file_parser - INFO - Scanning Plex directory: /media/plex
+2025-05-31 02:22:00,897 - src.core.file_parser - INFO - Scanning Plex directory: /media/plex

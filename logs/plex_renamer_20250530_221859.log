@@ -1,0 +1,34 @@
+2025-05-30 22:18:59,532 - src.utils.logger - INFO - Logging session started - Log file: logs/plex_renamer_20250530_221859.log
+2025-05-30 22:18:59,536 - __main__ - INFO - Starting Plex Media Renamer Web Application on port 5000
+2025-05-30 22:18:59,539 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.29.58.90:5000
+2025-05-30 22:18:59,539 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-05-30 22:19:08,204 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 22:19:08] "GET /api/health HTTP/1.1" 200 -
+2025-05-30 22:19:15,283 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 22:19:15] "[31m[1mPOST /api/discover-media-folders HTTP/1.1[0m" 400 -
+2025-05-30 22:19:28,590 - src.core.file_parser - INFO - Scanning Plex directory: ./test_media
+2025-05-30 22:19:28,590 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 22:19:28] "POST /api/discover-media-folders HTTP/1.1" 200 -
+2025-05-30 22:19:37,254 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 22:19:37] "GET /api/media-folders HTTP/1.1" 200 -
+2025-05-30 22:19:51,937 - src.core.file_parser - INFO - Scanning Plex directory: ./test_media
+2025-05-30 22:19:51,938 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 22:19:51] "POST /api/discover-media-folders HTTP/1.1" 200 -
+2025-05-30 22:19:51,939 - src.core.file_parser - INFO - Found media folder: TV_Shows (Type: tv_shows, Files: 2, Confidence: 1.00)
+2025-05-30 22:19:51,940 - src.core.file_parser - INFO - Found media folder: Movies (Type: movies, Files: 2, Confidence: 1.00)
+2025-05-30 22:19:54,955 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 22:19:54] "GET /api/media-folders HTTP/1.1" 200 -
+2025-05-30 22:20:00,915 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 22:20:00] "GET /api/media-folders HTTP/1.1" 200 -
+2025-05-30 22:20:09,677 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 22:20:09] "POST /api/scan HTTP/1.1" 200 -
+2025-05-30 22:20:09,678 - src.core.file_parser - INFO - Scanning directory: ./test_media/Movies
+2025-05-30 22:20:09,679 - src.core.file_parser - INFO - Found 2 media files
+2025-05-30 22:20:09,775 - src.api.tmdb - ERROR - TMDB API: Invalid API key
+2025-05-30 22:20:09,775 - src.core.renamer - WARNING - No metadata found for movie: The Matrix (1999)
+2025-05-30 22:20:10,065 - src.api.tmdb - ERROR - TMDB API: Invalid API key
+2025-05-30 22:20:10,065 - src.core.renamer - WARNING - No metadata found for movie: Inception (2010)
+2025-05-30 22:20:19,927 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 22:20:19] "GET /api/scan/results HTTP/1.1" 200 -
+2025-05-30 22:20:30,021 - src.core.file_parser - INFO - Scanning directory: ./test_media/TV_Shows
+2025-05-30 22:20:30,022 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 22:20:30] "POST /api/scan HTTP/1.1" 200 -
+2025-05-30 22:20:30,023 - src.core.file_parser - INFO - Found 2 media files
+2025-05-30 22:20:30,058 - src.api.tmdb - ERROR - TMDB API: Invalid API key
+2025-05-30 22:20:30,382 - src.api.tmdb - ERROR - TMDB API: Invalid API key
+2025-05-30 22:20:33,037 - __main__ - ERROR - Error getting scan results: 'NoneType' object has no attribute 'get'
+2025-05-30 22:20:33,038 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 22:20:33] "[35m[1mGET /api/scan/results HTTP/1.1[0m" 500 -
+2025-05-30 22:20:41,392 - werkzeug - INFO - 127.0.0.1 - - [30/May/2025 22:20:41] "GET /api/scan/status HTTP/1.1" 200 -

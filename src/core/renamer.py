@@ -193,19 +193,51 @@ class MediaRenamer:
             Movie metadata or None
         """
         if not self.tmdb_client:
-            self.logger.warning("TMDB client not available")
-            return None
+            self.logger.warning(f"TMDB client not available for {media_info.title}")
+            return {
+                'metadata_status': 'api_unavailable',
+                'error_message': 'TMDB API key not configured',
+                'title': media_info.title,
+                'year': media_info.year
+            }
         
         try:
+            # Search for the movie
             movie = self.tmdb_client.find_best_movie_match(media_info.title, media_info.year)
+            
             if movie:
                 # Get detailed information
                 details = self.tmdb_client.get_movie_details(movie['id'])
-                return details if details else movie
-            return None
+                if details:
+                    details['metadata_status'] = 'found'
+                    self.logger.info(f"Found metadata for movie: {details.get('title', media_info.title)}")
+                    return details
+                else:
+                    self.logger.warning(f"Could not get details for movie: {media_info.title}")
+                    return {
+                        'metadata_status': 'partial',
+                        'error_message': 'Found movie but could not get detailed information',
+                        'title': media_info.title,
+                        'year': media_info.year
+                    }
+            else:
+                self.logger.warning(f"No metadata found for movie: {media_info.title} ({media_info.year})")
+                return {
+                    'metadata_status': 'not_found',
+                    'error_message': f'No matching movie found for "{media_info.title}"' + 
+                                   (f' ({media_info.year})' if media_info.year else ''),
+                    'title': media_info.title,
+                    'year': media_info.year
+                }
+                
         except Exception as e:
-            self.logger.error(f"Error fetching movie metadata for {media_info.title}: {e}")
-            return None
+            self.logger.error(f"Error getting movie metadata for {media_info.title}: {e}")
+            return {
+                'metadata_status': 'error',
+                'error_message': f'API error: {str(e)}',
+                'title': media_info.title,
+                'year': media_info.year
+            }
     
     def get_tv_show_metadata(self, media_info: MediaFileInfo) -> Tuple[Optional[Dict], Optional[Dict]]:
         """
@@ -217,36 +249,141 @@ class MediaRenamer:
         Returns:
             Tuple of (show_metadata, episode_metadata)
         """
+        if not self.tmdb_client and not self.tvdb_client:
+            self.logger.warning(f"No API clients available for {media_info.title}")
+            show_metadata = {
+                'metadata_status': 'api_unavailable',
+                'error_message': 'No API keys configured (TMDB or TVDB required)',
+                'name': media_info.title
+            }
+            return show_metadata, None
+        
         show_metadata = None
         episode_metadata = None
         
-        # Try TVDB first (preferred for TV shows)
-        if self.tvdb_client:
-            try:
-                series = self.tvdb_client.find_best_series_match(media_info.title, media_info.year)
-                if series:
-                    show_metadata = self.tvdb_client.get_series_details(series['tvdb_id'])
-                    if show_metadata and media_info.season and media_info.episode:
-                        episode = self.tvdb_client.find_episode_by_season_episode(
-                            series['tvdb_id'], media_info.season, media_info.episode
-                        )
-                        if episode:
-                            episode_metadata = self.tvdb_client.get_episode_details(episode['id'])
-            except Exception as e:
-                self.logger.error(f"Error fetching TVDB metadata for {media_info.title}: {e}")
-        
-        # Fallback to TMDB if TVDB failed or not available
-        if not show_metadata and self.tmdb_client:
+        # Try TMDB first (if available)
+        if self.tmdb_client:
             try:
                 show = self.tmdb_client.find_best_tv_match(media_info.title, media_info.year)
+                
                 if show:
-                    show_metadata = self.tmdb_client.get_tv_details(show['id'])
-                    if show_metadata and media_info.season and media_info.episode:
-                        episode_metadata = self.tmdb_client.get_tv_episode_details(
-                            show['id'], media_info.season, media_info.episode
-                        )
+                    # Get detailed show information
+                    show_details = self.tmdb_client.get_tv_details(show['id'])
+                    if show_details:
+                        show_metadata = show_details
+                        show_metadata['metadata_status'] = 'found'
+                        show_metadata['source'] = 'tmdb'
+                        
+                        # Try to get episode metadata if we have season/episode info
+                        if media_info.season and media_info.episode:
+                            try:
+                                episode_details = self.tmdb_client.get_tv_episode_details(
+                                    show['id'], media_info.season, media_info.episode
+                                )
+                                if episode_details:
+                                    episode_metadata = episode_details
+                                    episode_metadata['metadata_status'] = 'found'
+                                    episode_metadata['source'] = 'tmdb'
+                                else:
+                                    self.logger.warning(
+                                        f"Episode not found: {media_info.title} S{media_info.season:02d}E{media_info.episode:02d}"
+                                    )
+                            except Exception as e:
+                                self.logger.warning(f"Error getting episode metadata: {e}")
+                        
+                        self.logger.info(f"Found TMDB metadata for TV show: {show_metadata.get('name', media_info.title)}")
+                    else:
+                        self.logger.warning(f"Could not get TMDB details for show: {media_info.title}")
+                        show_metadata = {
+                            'metadata_status': 'partial',
+                            'error_message': 'Found show but could not get detailed information',
+                            'name': media_info.title,
+                            'source': 'tmdb'
+                        }
+                        
             except Exception as e:
-                self.logger.error(f"Error fetching TMDB metadata for {media_info.title}: {e}")
+                self.logger.error(f"Error getting TMDB TV metadata for {media_info.title}: {e}")
+                show_metadata = {
+                    'metadata_status': 'error',
+                    'error_message': f'TMDB API error: {str(e)}',
+                    'name': media_info.title,
+                    'source': 'tmdb'
+                }
+        
+        # Try TVDB if TMDB failed or is not available
+        if not show_metadata or show_metadata.get('metadata_status') != 'found':
+            if self.tvdb_client:
+                try:
+                    # Search for the show
+                    search_results = self.tvdb_client.search_series(media_info.title)
+                    
+                    if search_results:
+                        # Get the best match (first result)
+                        series_id = search_results[0]['id']
+                        
+                        # Get detailed show information
+                        show_details = self.tvdb_client.get_series_details(series_id)
+                        if show_details:
+                            show_metadata = show_details
+                            show_metadata['metadata_status'] = 'found'
+                            show_metadata['source'] = 'tvdb'
+                            show_metadata['tvdb_id'] = series_id
+                            
+                            # Try to get episode metadata
+                            if media_info.season and media_info.episode:
+                                try:
+                                    episode_details = self.tvdb_client.get_episode_details(
+                                        series_id, media_info.season, media_info.episode
+                                    )
+                                    if episode_details:
+                                        episode_metadata = episode_details
+                                        episode_metadata['metadata_status'] = 'found'
+                                        episode_metadata['source'] = 'tvdb'
+                                    else:
+                                        self.logger.warning(
+                                            f"Episode not found in TVDB: {media_info.title} S{media_info.season:02d}E{media_info.episode:02d}"
+                                        )
+                                except Exception as e:
+                                    self.logger.warning(f"Error getting TVDB episode metadata: {e}")
+                            
+                            self.logger.info(f"Found TVDB metadata for TV show: {show_metadata.get('name', media_info.title)}")
+                        else:
+                            self.logger.warning(f"Could not get TVDB details for show: {media_info.title}")
+                            if not show_metadata:  # Only set if we don't have TMDB data
+                                show_metadata = {
+                                    'metadata_status': 'partial',
+                                    'error_message': 'Found show but could not get detailed information',
+                                    'name': media_info.title,
+                                    'source': 'tvdb'
+                                }
+                    else:
+                        self.logger.warning(f"No TVDB results found for show: {media_info.title}")
+                        if not show_metadata:  # Only set if we don't have TMDB data
+                            show_metadata = {
+                                'metadata_status': 'not_found',
+                                'error_message': f'No matching TV show found for "{media_info.title}"',
+                                'name': media_info.title,
+                                'source': 'tvdb'
+                            }
+                            
+                except Exception as e:
+                    self.logger.error(f"Error getting TVDB metadata for {media_info.title}: {e}")
+                    if not show_metadata:  # Only set if we don't have TMDB data
+                        show_metadata = {
+                            'metadata_status': 'error',
+                            'error_message': f'TVDB API error: {str(e)}',
+                            'name': media_info.title,
+                            'source': 'tvdb'
+                        }
+        
+        # If we still don't have show metadata, create a fallback
+        if not show_metadata:
+            show_metadata = {
+                'metadata_status': 'not_found',
+                'error_message': f'No matching TV show found for "{media_info.title}" in any database',
+                'name': media_info.title,
+                'source': 'none'
+            }
         
         return show_metadata, episode_metadata
     
